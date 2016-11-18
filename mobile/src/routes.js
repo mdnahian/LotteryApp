@@ -3,43 +3,41 @@ import {
 	View,
 	Text,
 	Image,
-	Navigator
+	Navigator,
+	TouchableHighlight
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
+import styles from '../style/default';
+
 
 var firebase = require("firebase");
 
 var Login = require('./pages/front/login');
 var Signup = require('./pages/front/signup');
 var Forgot = require('./pages/front/forgot');
-
-var front_ROUTES = {
-	login: Login,
-	signup: Signup,
-	forgot: Forgot
-};
+var Confirm = require('./pages/front/confirm')
 
 var Tickets = require('./pages/back/tickets');
 var Pools = require('./pages/back/pools');
 var Checkout = require('./pages/back/checkout');
-var Account = require('.pages/back/account');
+var Settings = require('./pages/back/settings');
 
-var back_ROUTES = {
+
+var ROUTES = {
+	login: Login,
+	signup: Signup,
+	forgot: Forgot,
 	tickets: Tickets,
 	pools: Pools,
 	checkout: Checkout,
-	account: Account
-}
+	settings: Settings,
+	confirm: Confirm
+};
 
 
 module.exports = React.createClass({
 	getInitialState: function () {
-		return {
-			isLoadingVisible: true,
-			isLoggedIn: false
-		}
-	},
-	componentWillMount: function () {
+
 		var config = {
 			apiKey: "AIzaSyCBc6vrJJmz2kcj4pQiXcugceW2LQScQ0c",
 			authDomain: "lottery-90cf1.firebaseapp.com",
@@ -49,42 +47,60 @@ module.exports = React.createClass({
 		};
   		firebase.initializeApp(config);
 
-  		firebase.auth().onAuthStateChanged(function(user) {
-		  if (user) {
-		    this.setState({
-		    	isLoggedIn: true,
-		    	isLoadingVisible: false,
-		    	initialRoute: 'tickets'
-		    });
-		  } else {
-		    this.setState({
-		    	isLoggedIn: false,
-		    	isLoadingVisible: false,
-		    	initialRoute: 'login'
-		    });
-		  }
-		});
+		var user = firebase.auth().currentUser;
 
+		if(user){
+			return {
+				isLoggedIn: true,
+				initialRoute: 'tickets'
+			}
+		} else {
+			return {
+				isLoggedIn: false,
+				initialRoute: 'login'
+			}
+		}
+	},
+	componentWillMount: function () {
+		
 	},
 	renderScene: function (route, navigator) {
-		var Component = front_ROUTES[route.name];
 
-		if(this.state.isLoggedIn){
-			Component = back_ROUTES[route.name];
+		var Component = ROUTES[route.name];
+		var settingsBtn;
+		var backBtn;
+
+		var routes = navigator.getCurrentRoutes(0);
+		var currentRoute = routes[routes.length - 1].name;
+
+		if(this.state.isLoggedIn && currentRoute != 'settings'){
+			settingsBtn = <TouchableHighlight underlayColor={'#eeeeee'} onPress={() => this.openSettings(navigator)}><Image style={styles.settingsBtn} source={require('../img/settings.png')} /></TouchableHighlight>
 		}
 
-		return <Component route={route} navigator={navigator} />
+		if(currentRoute != 'tickets' && currentRoute != 'login'){
+			backBtn = <TouchableHighlight underlayColor={'#eeeeee'} onPress={() => this.goBack(navigator)}><Image style={[styles.settingsBtn, {marginRight:25}]} source={require('../img/back.png')} /></TouchableHighlight>
+		}
+
+		return <View style={styles.container}>
+			<View style={styles.statusBar}></View>
+			<View style={styles.navbar}>
+				{backBtn}
+				<Text style={styles.title}>APPNAME</Text>
+				{settingsBtn}
+			</View>
+			<Component route={route} navigator={navigator} />
+		</View>
 	},
 	render: function () {
-		return <View style={styles.container}>
-			<View style={styles.navbar}>
-				<Text>Lottery</Text>
-				<Image style={styles.settingsBtn} source={require('../../img/settings.png')} />
-			</View>
-			<Navigator style={{flex: 1}}
-				initialRoute={{name: this.state.initialRoute}}
-				renderScene={this.renderScene}
-				configScence={() => { return Navigator.SceneConfigs.FloatFromRight; }} />
-		</View>
+		return <Navigator style={{flex: 1}}
+			initialRoute={{name: this.state.initialRoute}}
+			renderScene={this.renderScene}
+			configScence={() => { return Navigator.SceneConfigs.FloatFromRight; }} />
+	},
+	openSettings: function (navigator) {
+		navigator.push({ name: 'settings' });
+	},
+	goBack: function (navigator) {
+		navigator.pop(0);
 	}
 });

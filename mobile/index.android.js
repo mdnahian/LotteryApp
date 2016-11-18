@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { AppRegistry } from 'react-native';
 
-var Front = require('./src/front');
+var Routes = require('./src/routes');
 
-AppRegistry.registerComponent('mobile', () => Front);
+AppRegistry.registerComponent('mobile', () => Routes);
