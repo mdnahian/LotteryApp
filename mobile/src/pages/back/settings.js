@@ -9,6 +9,8 @@ import {
 
 import styles from '../../../style/page';
 
+var firebase = require("firebase");
+
 module.exports = React.createClass({
 	render: function () {
 		return <ScrollView style={styles.page}>
@@ -56,9 +58,34 @@ module.exports = React.createClass({
 				</View>
 			</TouchableHighlight>
 
+			<TouchableHighlight underlayColor={'#eeeeee'} onPress={this.logout}>
+				<View style={[styles.sectionHor, styles.border, styles.settingsSection]}>
+					<View style={{marginRight: 15}}>
+						<Image source={require('../../../img/logout.png')} />
+					</View>
+					<View style={styles.sectionHor}>
+						<Text style={styles.settingsOption}>Sign Out</Text>
+					</View>
+				</View>
+			</TouchableHighlight>
+
 		</ScrollView>
 	},
 	navigate: function (route) {
+
+	},
+	logout: function () {
+		firebase.auth().signOut().then(() => {
+
+			this.props.parent_state.setState({
+				isLoggedIn: false
+			});
+
+			this.props.navigator.resetTo({name: 'login'});
+			  
+		}, (error) => {
+		  console.error('Sign Out Error', error);
+		});
 
 	}
 })

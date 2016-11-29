@@ -18,7 +18,7 @@ var Forgot = require('./pages/front/forgot');
 var Confirm = require('./pages/front/confirm')
 
 var Tickets = require('./pages/back/tickets');
-var Pools = require('./pages/back/pools');
+var Pool = require('./pages/back/pool');
 var Checkout = require('./pages/back/checkout');
 var Settings = require('./pages/back/settings');
 
@@ -28,7 +28,7 @@ var ROUTES = {
 	signup: Signup,
 	forgot: Forgot,
 	tickets: Tickets,
-	pools: Pools,
+	pool: Pool,
 	checkout: Checkout,
 	settings: Settings,
 	confirm: Confirm
@@ -37,6 +37,13 @@ var ROUTES = {
 
 module.exports = React.createClass({
 	getInitialState: function () {
+		return {
+			isLoadingVisible: true,
+			isLoggedIn: false,
+			initialRoute: 'login'
+		}
+	},
+	componentWillMount: function () {
 
 		var config = {
 			apiKey: "AIzaSyCBc6vrJJmz2kcj4pQiXcugceW2LQScQ0c",
@@ -47,28 +54,27 @@ module.exports = React.createClass({
 		};
   		firebase.initializeApp(config);
 
-		var user = firebase.auth().currentUser;
+		// var user = firebase.auth().currentUser;
 
-		if(user){
-			return {
-				isLoggedIn: true,
-				initialRoute: 'tickets'
-			}
-		} else {
-			return {
-				isLoggedIn: false,
-				initialRoute: 'login'
-			}
-		}
-	},
-	componentWillMount: function () {
-		
+		// if(user){
+		// 	return {
+		// 		isLoggedIn: true,
+		// 		initialRoute: 'tickets'
+		// 	}
+		// } else {
+		// 	return {
+		// 		isLoadingVisible: false,
+		// 		isLoggedIn: false,
+		// 		initialRoute: 'login'
+		// 	}
+		// }
 	},
 	renderScene: function (route, navigator) {
 
 		var Component = ROUTES[route.name];
 		var settingsBtn;
 		var backBtn;
+		var header = <Text style={styles.title}>YEAHAMIN</Text>;
 
 		var routes = navigator.getCurrentRoutes(0);
 		var currentRoute = routes[routes.length - 1].name;
@@ -81,14 +87,19 @@ module.exports = React.createClass({
 			backBtn = <TouchableHighlight underlayColor={'#eeeeee'} onPress={() => this.goBack(navigator)}><Image style={[styles.settingsBtn, {marginRight:25}]} source={require('../img/back.png')} /></TouchableHighlight>
 		}
 
+		if(currentRoute == 'login' || currentRoute == 'signup' || currentRoute == 'forgot'){
+			header = <Image style={{marginTop:35, width:65, height:65}} source={require('../img/icon.png')} />;
+		}
+
 		return <View style={styles.container}>
 			<View style={styles.statusBar}></View>
 			<View style={styles.navbar}>
 				{backBtn}
-				<Text style={styles.title}>APPNAME</Text>
+				{header}
 				{settingsBtn}
 			</View>
-			<Component route={route} navigator={navigator} />
+			<Component route={route} navigator={navigator} parent_state={this} />
+			<Spinner visible={this.state.isLoadingVisible}/>
 		</View>
 	},
 	render: function () {

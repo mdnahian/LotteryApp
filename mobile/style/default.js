@@ -13,8 +13,8 @@ export default StyleSheet.create({
 		flexDirection: 'row',
 		justifyContent: 'center',
 		alignItems: 'center',
-		padding: 15,
-		backgroundColor: '#eeeeee'
+		backgroundColor: '#ffffff',
+		padding:15
 	},
 	title: {
 		flex: 3,

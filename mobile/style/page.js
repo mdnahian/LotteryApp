@@ -53,6 +53,8 @@ export default StyleSheet.create({
 		right:0
 	},
 	borderBtnText: {
+		fontSize:18,
+		fontWeight:'bold',
 		textAlign: 'center',
 		color: '#ffffff'
 	},

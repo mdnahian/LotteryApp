@@ -7,7 +7,6 @@ import {
 	TouchableHighlight,
 	ScrollView
 } from 'react-native';
-import Spinner from 'react-native-loading-spinner-overlay';
 import styles from '../../../style/page';
 var firebase = require("firebase");
 
@@ -20,6 +19,10 @@ module.exports = React.createClass({
 		  	} else {
 		  		this.props.navigator.resetTo({name: 'confirm'});
 		  	}
+		  } else {
+		  	this.props.parent_state.setState({
+			  	isLoadingVisible: false
+			});
 		  }
 		});
 	},
@@ -62,8 +65,6 @@ module.exports = React.createClass({
 						<Text style={styles.borderBtnText, {color:'#242424', textAlign:'center'}}>SIGN UP</Text>
 					</TouchableHighlight>
 				</View>
-
-				<Spinner visible={this.state.isLoadingVisible}/>
 			</View>
 		</ScrollView>
 	},
@@ -73,9 +74,12 @@ module.exports = React.createClass({
 			firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password).catch((error) => {
 			  if(error){
 			  	this.setState({
-			  		isLoadingVisible: false,
 			  		errorMessage: <Text style={styles.errorMessage}>{error.message}</Text>
 			  	});
+
+			  	this.props.parent_state.setState({
+			  		isLoadingVisible: false
+				});
 			  }
 			});
 		}
